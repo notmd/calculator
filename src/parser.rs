@@ -1,7 +1,8 @@
 use std::{iter::Peekable, rc::Rc, vec::IntoIter};
 
 use crate::{
-    functions::{Evaluate, Sin, Cos},
+    constants::Constant,
+    functions::{Abs, Cos, Evaluate, Max, Min, Sin, Sqrt, Tan},
     lexer::{Operator, Token},
 };
 
@@ -10,8 +11,8 @@ pub enum Expression {
     Binary(Operator, Box<Expression>, Box<Expression>),
     Unary(Operator, Box<Expression>),
     Number(f64),
-    // TODO should be function struct instead
     Function(Rc<dyn Evaluate>, Vec<Expression>),
+    Constant(Constant),
 }
 
 impl Expression {
@@ -25,6 +26,7 @@ impl Expression {
             Expression::Binary(Operator::Divide, expr1, expr2) => expr1.eval() / expr2.eval(),
             Expression::Binary(Operator::Power, expr1, expr2) => expr1.eval().powf(expr2.eval()),
             Expression::Function(f, exprs) => f.eval(exprs.to_vec()),
+            Expression::Constant(c) => c.eval(),
             _ => {
                 unreachable!("expression evaluate failed {:?}", self)
             }
@@ -50,7 +52,7 @@ impl Parser {
     fn assert_next(&mut self, token: Token) -> Result<(), String> {
         let next = self.tokens.next();
         if let None = next {
-            return Err("next is none".to_string());
+            return Err(format!("expect next is: {:?}. Found {:?}", token, next));
         }
 
         if next.as_ref().unwrap() != &token {
@@ -68,7 +70,7 @@ impl Parser {
                 Token::RightParen => {
                     self.tokens.next();
                     break;
-                },
+                }
                 Token::Comma => {
                     self.tokens.next();
                 }
@@ -85,6 +87,11 @@ impl Parser {
         let next = self.tokens.next().unwrap();
         match next {
             Token::Number(n) => Ok(Expression::Number(n)),
+            Token::Constant(name) => match name.as_str() {
+                "PI" => Ok(Expression::Constant(Constant::PI)),
+                "e" => Ok(Expression::Constant(Constant::E)),
+                _ => Err(format!("Unknown constant: {}", name)),
+            },
             Token::LeftParen => {
                 let expression = self.parse_expression()?;
                 self.assert_next(Token::RightParen)?;
@@ -100,12 +107,17 @@ impl Parser {
                 let function: Result<Rc<dyn Evaluate>, ()> = match name.to_lowercase().as_str() {
                     "sin" => Ok(Rc::new(Sin {})),
                     "cos" => Ok(Rc::new(Cos {})),
+                    "tan" => Ok(Rc::new(Tan {})),
+                    "sqrt" => Ok(Rc::new(Sqrt {})),
+                    "abs" => Ok(Rc::new(Abs {})),
+                    "max" => Ok(Rc::new(Max {})),
+                    "min" => Ok(Rc::new(Min {})),
                     _ => Err(()),
                 };
 
                 match function {
                     Ok(f) => Ok(Expression::Function(f, args)),
-                    Err(_) => Err("error".to_string()),
+                    Err(_) => Err(format!("Unknown function: {}", name)),
                 }
             }
             _ => {
@@ -156,7 +168,7 @@ impl Parser {
         // dbg!("terminal", &expression);
         while let Some(next) = self.tokens.clone().peek() {
             match next {
-                Token::Star => {
+                Token::Star | Token::Slash => {
                     self.tokens.next();
                     let expression2 = self.parse_factor()?;
                     expression = Expression::Binary(

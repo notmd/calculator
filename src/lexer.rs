@@ -10,13 +10,14 @@ pub enum Token {
     Comma,
     Number(f64),
     Function(String),
+    Constant(String),
     End,
 }
 pub struct Lexer {}
 
 impl Lexer {
     pub fn lex(source: String) -> Vec<Token> {
-        let mut iter = source.chars();
+        let mut iter = source.chars().peekable();
         let mut tokens: Vec<Token> = Vec::new();
         while let Some(ch) = iter.next() {
             match ch {
@@ -28,6 +29,15 @@ impl Lexer {
                 '^' => tokens.push(Token::Caret),
                 '(' => tokens.push(Token::LeftParen),
                 ')' => tokens.push(Token::RightParen),
+                'P' => {
+                    if iter.peek().unwrap_or(&'a') == &'I' {
+                        iter.next();
+                        tokens.push(Token::Constant(String::from("PI")));
+                    }
+                }
+                'e' =>
+                    tokens.push(Token::Constant(String::from("e")))
+                ,
                 ch if ch.is_ascii_digit() => {
                     let mut has_dot = false;
                     let next_numbers: String = iter

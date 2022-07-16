@@ -14,11 +14,19 @@ This grammar is base on this awesome [guide](https://www.engr.mun.ca/~theo/Misc/
 #### Feature:
 
 - Support the following operators: `+`,`-`,`*`,`/`,`^`.
-- Built in functions: `sin`, `cos`.
+- Built in functions:
+  - [x] `sin`
+  - [x] `cos`
+  - [x] `tan`
+  - [x] `sqrt`
+  - [x] `abs`
+  - [x] `max`: `max(arg1,arg2,...)`
+  - [x] `min`: `min(arg1,arg2,...)`
+- Built in constants:
+  - [x] `PI`
+  - [x] `e`
 
 #### TODO:
 
 - Support for variables.
-- Support for colapse variables: `x + x => 2*x`
-- Support for resolving basic equation.
 - Better error handling.
