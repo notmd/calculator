@@ -1,3 +1,5 @@
+use std::{fmt::Display, borrow::Borrow};
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
     Plus,
@@ -13,6 +15,29 @@ pub enum Token {
     Constant(String),
     End,
 }
+
+impl Display for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let c = match self {
+            Token::Plus => "+".to_string(),
+            Token::Dash => "-".to_string(),
+            Token::Star => "*".to_string(),
+            Token::Slash => "/".to_string(),
+            Token::Caret => "^".to_string(),
+            Token::LeftParen => "(".to_string(),
+            Token::RightParen => ")".to_string(),
+            Token::Comma => ",".to_string(),
+            Token::Number(val) => val.to_string(),
+            Token::Function(val) => val.to_string(),
+            Token::Constant(val) => val.to_string(),
+            Token::End => "".to_string(),
+        };
+
+        write!(f, "{}", c)
+    }
+}
+
+
 pub struct Lexer {}
 
 impl Lexer {
@@ -35,9 +60,7 @@ impl Lexer {
                         tokens.push(Token::Constant(String::from("PI")));
                     }
                 }
-                'e' =>
-                    tokens.push(Token::Constant(String::from("e")))
-                ,
+                'e' => tokens.push(Token::Constant(String::from("e"))),
                 ch if ch.is_ascii_digit() => {
                     let mut has_dot = false;
                     let next_numbers: String = iter

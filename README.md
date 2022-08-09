@@ -11,6 +11,12 @@ P --> v | "(" E ")" | "-" T | Function "(" {E[,]} ")"
 
 This grammar is base on this awesome [guide](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm). I also extends it to support function.
 
+#### Example:
+
+```
+cargo run "1+2*sqrt(4)"
+```
+
 #### Feature:
 
 - Support the following operators: `+`,`-`,`*`,`/`,`^`.

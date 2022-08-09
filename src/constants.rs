@@ -1,4 +1,4 @@
-use std::f64::consts::{PI, E};
+use std::f64::consts::{E, PI};
 
 #[derive(Debug, Clone)]
 pub enum Constant {

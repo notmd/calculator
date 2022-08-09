@@ -121,15 +121,13 @@ impl Parser {
                 }
             }
             _ => {
-                dbg!(next);
-                unreachable!()
+                Err(format!("Unexpected token: {}", next))
             }
         }
     }
 
     fn parse_expression(&mut self) -> Result<Expression, String> {
         let mut expr = self.parse_term()?;
-        // dbg!("expression", &expression);
         while let Some(next) = self.tokens.clone().peek() {
             match next {
                 Token::Plus | Token::Dash => {
@@ -152,7 +150,6 @@ impl Parser {
 
     fn parse_factor(&mut self) -> Result<Expression, String> {
         let mut expr = self.parse_primary()?;
-        // dbg!("factor", &expression);
         let next = self.tokens.peek().unwrap();
         if *next == Token::Caret {
             self.tokens.next();
@@ -165,7 +162,6 @@ impl Parser {
 
     fn parse_term(&mut self) -> Result<Expression, String> {
         let mut expression = self.parse_factor()?;
-        // dbg!("terminal", &expression);
         while let Some(next) = self.tokens.clone().peek() {
             match next {
                 Token::Star | Token::Slash => {
